@@ -4,7 +4,7 @@
 # the full copyright notices and license terms.
 import logging
 
-from trytond.model import ModelSQL, Workflow, fields, ModelView
+from trytond.model import Workflow, ModelView
 from trytond.pool import Pool, PoolMeta
 
 logger = logging.getLogger(__name__)
@@ -21,13 +21,16 @@ class Invoice:
     @Workflow.transition('validated')
     def validate_invoice(cls, invoices):
         super(Invoice, cls).validate_invoice(invoices)
+        pool = Pool()
+        Move = pool.get('account.move')
 
-    def _get_move_line(self, date, amount):
-        line = super(Invoice, self)._get_move_line(date, amount)
-        return line
-
-    @classmethod
-    @ModelView.button
-    @Workflow.transition('posted')
-    def post(cls, invoices):
-        super(Invoice, cls).post(invoices)
+        invoices_out = cls.browse([i for i in invoices if i.type == 'out'])
+        moves = []
+        for invoice in invoices_out:
+            move = invoice.get_move()
+            if move != invoice.move:
+                invoice.move = move
+                moves.append(move)
+        if moves:
+            Move.save(moves)
+        cls.save(invoices_out)

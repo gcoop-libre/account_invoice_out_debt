@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of the account_invoice_out_debt module for Tryton.
 # The COPYRIGHT file at the top level of this repository contains
 # the full copyright notices and license terms.
@@ -23,10 +22,12 @@ class Invoice:
         super(Invoice, cls).validate_invoice(invoices)
         pool = Pool()
         Move = pool.get('account.move')
+        Date = pool.get('ir.date')
 
         invoices_out = cls.browse([i for i in invoices if i.type == 'out'])
         moves = []
         for invoice in invoices_out:
+            invoice.invoice_date = invoice.invoice_date or Date.today()
             move = invoice.get_move()
             if move != invoice.move:
                 invoice.move = move

@@ -13,9 +13,8 @@ logger = logging.getLogger(__name__)
 __all__ = ['Invoice']
 
 
-class Invoice:
+class Invoice(metaclass=PoolMeta):
     __name__ = 'account.invoice'
-    __metaclass__ = PoolMeta
 
     @classmethod
     def get_amount_to_pay(cls, invoices, name):

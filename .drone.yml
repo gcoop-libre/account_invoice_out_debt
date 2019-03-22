@@ -1,6 +1,6 @@
-#clone:
-#    hg:
-#        image: plugins/hg
+clone:
+    hg:
+        image: plugins/hg
 
 pipeline:
     tox:
